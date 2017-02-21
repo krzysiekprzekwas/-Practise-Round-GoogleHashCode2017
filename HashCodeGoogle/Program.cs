@@ -54,10 +54,20 @@ namespace HashCodeGoogle
                 DividePizza(reader, "smallResults.txt");
             }
 
-            //using (TextReader reader = File.OpenText("medium.in"))
-            //{
-            //    DividePizza(reader, "mediumResults.txt");
-            //}
+            using (TextReader reader = File.OpenText("medium.in"))
+            {
+                DividePizza(reader, "mediumResults.txt");
+            }
+
+            using (TextReader reader = File.OpenText("big.in"))
+            {
+                DividePizza(reader, "bigResults.txt");
+            }
+
+            using (TextReader reader = File.OpenText("example.in"))
+            {
+                DividePizza(reader, "example.txt");
+            }
 
         }
 
@@ -92,10 +102,10 @@ namespace HashCodeGoogle
                     foreach (var shape in possibleShapes)
                     {
                         // Count sum of slice in current shape if placed in place IxJ
-                        int sumCurrent = SumCurrent(shape, i, j);
+                        var sumCurrent = SumCurrent(shape, i, j);
 
                         // Check if sum is correct. More explanations on top. 
-                        if (sumCurrent > shape.X * shape.Y && sumCurrent < 2 * shape.X * shape.Y)
+                        if (sumCurrent >= minIngredient)
                         {
                             // Add new slice to others
                             pizzaSlices.Add(new Tuple<int, int, int, int>(i, j, i + shape.X - 1, j + shape.Y - 1));
@@ -132,7 +142,7 @@ namespace HashCodeGoogle
                 {
                     array[i + l, j + f] = 0;
                     //Console.SetCursorPosition(j+f, i + l);
-                    Console.Write(0);
+                    //Console.Write(0);
                 }
             }
         }
@@ -152,19 +162,28 @@ namespace HashCodeGoogle
 
         private static int SumCurrent(Point shape, int i, int j)
         {
-            int sumCurrent = 0;
+            int tomatoCounter = 0, mushroomCounter = 0;
+            
 
             for (int l = 0; l < shape.X; l++)
             {
                 for (int f = 0; f < shape.Y; f++)
                 {
                     if (i + l >= rows || j + f >= columns || array[i + l, j + f] == 0)
-                        return int.MinValue;
-                    
-                    sumCurrent += array[i + l, j + f];
+                        return 0;
+
+                    switch (array[i + l, j + f])
+                    {
+                        case 1:
+                            ++mushroomCounter;
+                            break;
+                        case 2:
+                            ++tomatoCounter;
+                            break;
+                    }
                 }
             }
-            return sumCurrent;
+            return Math.Min(tomatoCounter,mushroomCounter);
         }
 
         private static void ReadInputData(TextReader reader)
