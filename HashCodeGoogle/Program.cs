@@ -68,13 +68,13 @@ namespace HashCodeGoogle
 
             Console.Clear();
             // Prints data as matrix
-            PrintPizza();
+            //PrintPizza();
 
             // Generates all possible and valid sizes of slices
             GeneratePossibleShapes();
 
             // Show possible shapes and their order
-            PrintPossibleShapes();
+            //PrintPossibleShapes();
 
 
             for (int i = 0; i < rows; i++)
@@ -85,8 +85,8 @@ namespace HashCodeGoogle
                         continue;
                     
                         //Console.Clear();
-                        PrintCursor(i, j, ConsoleColor.Red);      // Uncoment this shit for some cool debugging stuff
-                        Console.ReadKey();
+                        //PrintCursor(i, j, ConsoleColor.Red);      // Uncoment this shit for some cool debugging stuff
+                        //Console.ReadKey();
                         
 
                     foreach (var shape in possibleShapes)
@@ -107,7 +107,7 @@ namespace HashCodeGoogle
                             break;
                         }
                     }
-                    PrintCursor(i, j, ConsoleColor.White);
+                    //PrintCursor(i, j, ConsoleColor.White);
                 }
             }
 
@@ -131,7 +131,7 @@ namespace HashCodeGoogle
                 for (int f = 0; f < shape.Y; f++)
                 {
                     array[i + l, j + f] = 0;
-                    Console.SetCursorPosition(j+f, i + l);
+                    //Console.SetCursorPosition(j+f, i + l);
                     Console.Write(0);
                 }
             }
@@ -198,11 +198,11 @@ namespace HashCodeGoogle
 
         private static void GeneratePossibleShapes()
         {
-            for (int i = 0; i < maxCells; i++)
+            for (int i = 0; i <= maxCells; i++)
             {
-                for (int j = 0; j < maxCells; j++)
+                for (int j = 0; j <= maxCells; j++)
                 {
-                    if (i * j < maxCells && i * j > minIngredient * 2)
+                    if (i * j <= maxCells && i * j >= minIngredient * 2)
                         possibleShapes.Add(new Point(i, j));
                 }
             }
