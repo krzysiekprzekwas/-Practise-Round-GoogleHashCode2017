@@ -51,55 +51,77 @@ namespace HashCodeGoogle
 
             using (TextReader reader = File.OpenText("small.in"))
             {
-                // Read data from small.in and initialize Lists
-                ReadInputData(reader);
-
-                // Prints data as matrix
-                PrintPizza();
-
-                // Generates all possible and valid sizes of slices
-                GeneratePossibleShapes();
-
-                for (int i = 0; i < rows; i++)
-                {
-                    for (int j = 0; j < columns; j++)
-                    {
-                        if (array[i, j] == 0)   // If that place was already choped off then move on to the next one
-                            continue;
-                        /*
-                        Console.Clear();
-                        PrintPizza(i, j);      // Uncoment this shit for some cool debugging stuff
-                        Console.ReadKey();
-                        */
-
-                        foreach (var shape in possibleShapes)
-                        {
-                            // Count sum of slice in current shape if placed in place IxJ
-                            int sumCurrent = SumCurrent(shape, i, j);
-
-                            // Check if sum is correct. More explanations on top. 
-                            if (sumCurrent > shape.X * shape.Y && sumCurrent < 2 * shape.X * shape.Y)
-                            {
-                                // Add new slice to others
-                                pizzaSlices.Add(new Tuple<int, int, int, int>(i, j, i + shape.X - 1, j + shape.Y - 1));
-
-                                // Erase slice from pizza matrix
-                                CutSliceFromPizza(shape, i, j);
-
-                                // Move to next not choped off place
-                                break;
-                            }
-                        }
-
-                        
-                    }
-                }
-
-                // Save results to results.txt in current directory
-                SaveResults();
+                DividePizza(reader, "smallResults.txt");
             }
 
+            using (TextReader reader = File.OpenText("medium.in"))
+            {
+                DividePizza(reader, "mediumResults.txt");
+            }
 
+        }
+
+        private static void DividePizza(TextReader reader, string output)
+        {
+            // Read data from small.in and initialize Lists
+            ReadInputData(reader);
+
+            Console.Clear();
+            // Prints data as matrix
+            PrintPizza();
+
+            // Generates all possible and valid sizes of slices
+            GeneratePossibleShapes();
+
+            // Show possible shapes and their order
+            PrintPossibleShapes();
+
+
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < columns; j++)
+                {
+                    if (array[i, j] == 0) // If that place was already choped off then move on to the next one
+                        continue;
+                    
+                        //Console.Clear();
+                        PrintCursor(i, j, ConsoleColor.Red);      // Uncoment this shit for some cool debugging stuff
+                        Console.ReadKey();
+                        
+
+                    foreach (var shape in possibleShapes)
+                    {
+                        // Count sum of slice in current shape if placed in place IxJ
+                        int sumCurrent = SumCurrent(shape, i, j);
+
+                        // Check if sum is correct. More explanations on top. 
+                        if (sumCurrent > shape.X * shape.Y && sumCurrent < 2 * shape.X * shape.Y)
+                        {
+                            // Add new slice to others
+                            pizzaSlices.Add(new Tuple<int, int, int, int>(i, j, i + shape.X - 1, j + shape.Y - 1));
+
+                            // Erase slice from pizza matrix
+                            CutSliceFromPizza(shape, i, j);
+
+                            // Move to next not choped off place
+                            break;
+                        }
+                    }
+                    PrintCursor(i, j, ConsoleColor.White);
+                }
+            }
+
+            // Save results to results.txt in current directory
+            SaveResults(output);
+        }
+
+        private static void PrintPossibleShapes()
+        {
+            for (int i = 0; i < possibleShapes.Count; i++)
+            {
+                Console.SetCursorPosition(columns + 5, i);
+                Console.WriteLine(possibleShapes.ElementAt(i).X + " x " + possibleShapes.ElementAt(i).Y);
+            }
         }
 
         private static void CutSliceFromPizza(Point shape, int i, int j)
@@ -109,13 +131,15 @@ namespace HashCodeGoogle
                 for (int f = 0; f < shape.Y; f++)
                 {
                     array[i + l, j + f] = 0;
+                    Console.SetCursorPosition(j+f, i + l);
+                    Console.Write(0);
                 }
             }
         }
 
-        private static void SaveResults()
+        private static void SaveResults(string output)
         {
-            System.IO.StreamWriter file = new System.IO.StreamWriter("results.txt");
+            System.IO.StreamWriter file = new System.IO.StreamWriter(output);
             file.WriteLine(pizzaSlices.Count);
 
             foreach (var pizza in pizzaSlices)
@@ -194,6 +218,14 @@ namespace HashCodeGoogle
                 }
                 Console.WriteLine();
             }
+        }
+
+        private static void PrintCursor(int l, int m, ConsoleColor color)
+        {
+            Console.SetCursorPosition(m,l);
+            Console.ForegroundColor = color;
+            Console.Write(array[l, m]);
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }
