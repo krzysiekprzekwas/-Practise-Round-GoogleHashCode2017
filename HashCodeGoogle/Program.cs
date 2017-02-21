@@ -51,16 +51,11 @@ namespace HashCodeGoogle
 
             using (TextReader reader = File.OpenText("small.in"))
             {
-                // Read data from small.in
+                // Read data from small.in and initialize Lists
                 ReadInputData(reader);
 
                 // Prints data as matrix
                 PrintPizza();
-
-
-                possibleShapes = new List<Point>();
-
-                pizzaSlices = new List<Tuple<int, int, int, int>>();
 
                 // Generates all possible and valid sizes of slices
                 GeneratePossibleShapes();
@@ -171,6 +166,10 @@ namespace HashCodeGoogle
                         array[i, j] = 2;
                 }
             }
+
+            possibleShapes = new List<Point>();
+
+            pizzaSlices = new List<Tuple<int, int, int, int>>();
         }
 
         private static void GeneratePossibleShapes()
