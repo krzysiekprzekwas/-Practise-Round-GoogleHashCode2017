@@ -54,10 +54,10 @@ namespace HashCodeGoogle
                 DividePizza(reader, "smallResults.txt");
             }
 
-            using (TextReader reader = File.OpenText("medium.in"))
-            {
-                DividePizza(reader, "mediumResults.txt");
-            }
+            //using (TextReader reader = File.OpenText("medium.in"))
+            //{
+            //    DividePizza(reader, "mediumResults.txt");
+            //}
 
         }
 
