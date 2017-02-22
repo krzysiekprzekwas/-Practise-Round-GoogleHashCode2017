@@ -4,7 +4,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 
-
 namespace HashCodeGoogle
 {
     internal class Program
@@ -21,7 +20,7 @@ namespace HashCodeGoogle
             using (TextReader reader = File.OpenText("small.in"))
             {
                 var slices = DividePizza(reader);
-                if (slices.Equals(null))
+                if (slices == null)
                 {
                     Console.WriteLine("Input File is incorrect!");
                     Console.ReadKey();
@@ -34,7 +33,7 @@ namespace HashCodeGoogle
             using (TextReader reader = File.OpenText("medium.in"))
             {
                 var slices = DividePizza(reader);
-                if (slices.Equals(null))
+                if (slices == null)
                 {
                     Console.WriteLine("Input File is incorrect!");
                     Console.ReadKey();
@@ -46,7 +45,7 @@ namespace HashCodeGoogle
             using (TextReader reader = File.OpenText("big.in"))
             {
                 var slices = DividePizza(reader);
-                if (slices.Equals(null))
+                if (slices == null)
                 {
                     Console.WriteLine("Input File is incorrect!");
                     Console.ReadKey();
@@ -58,7 +57,7 @@ namespace HashCodeGoogle
             using (TextReader reader = File.OpenText("example.in"))
             {
                 var slices = DividePizza(reader);
-                if (slices.Equals(null))
+                if (slices == null)
                 {
                     Console.WriteLine("Input File is incorrect!");
                     Console.ReadKey();
@@ -239,15 +238,21 @@ namespace HashCodeGoogle
 
         private static List<Point> GeneratePossibleShapes()
         {
-            List<Point> possibleShapes = new List<Point>();
-            for (int i = 0; i <= _maxCells; i++)
+            var possibleShapes = new List<Point>();
+            for (var i = 0; i <= _maxCells; i++)
             {
-                for (int j = 0; j <= _maxCells; j++)
+                for (var j = 0; j <= _maxCells; j++)
                 {
-                    if (i * j <= _maxCells && i * j >= _minIngredient * 2)
-                        possibleShapes.Add(new Point(i, j));
+                    // If shape is to big or to small, try next one
+                    if (i * j > _maxCells || i * j < _minIngredient * 2) continue;
+
+                    possibleShapes.Add(new Point(i, j));
                 }
+                
             }
+
+            // Sort from smallest to biggest one
+            possibleShapes = possibleShapes.OrderBy(o => o.X * o.Y).ToList();
 
             return possibleShapes;
         }
