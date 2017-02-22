@@ -5,34 +5,6 @@ using System.IO;
 using System.Linq;
 
 
-/*
- * Google Hash Code Pizza Project by NavySol
- * 
- * Pizza is kept in two dimentional array of ints. Every mushroom is replaced with value of 1 and every tomato with value of 2.
- * Cuting off slices will set value of their cells to zero.
- * 
- * Then the list of all possible shapes of slice is generated basing on two factors:
- *  - shape can't be bigger than max amount of cells
- *  - shape must be big enough to fit mimimum ingredients from both species
- * 
- * When it's done we start interating thru every cell in pizza.
- * If it hasn't been already chopped off we're trying to fit its place shape as small as possible, which will have enough ingredients.
- * Checking ingredients is based on control sum. If shape would have only mushrooms then that sum will be same as amount of cells in shape.
- * On the other hand if it would be full of tomatoes control sum will be exacly twice that amount.
- * With this said we know that sum should be between this two values and that sum cannot include any zero value (choped off slice).
- * 
- * If shape fits we add it to result list same way as it will be printed.
- * Then we're seting choped off cells to zero and go to next ineration.
- * If there's no shape that would fit we just skip that cell.
-
- * Future optimalization:
- * 
- * - before saving, we should iterate thru list of slices, and try to "strech" them if this is possible to eliminate lost spaces.
- * - with streching done, last thing should be to generate every permutation of shapes. Right now they are ordered as every loop-generated variable.
- *   It have huge effect on overal performance. In my opinion this algorithm may be quite accurate, at least accurate enough for Paris !
-
-*/
-
 namespace HashCodeGoogle
 {
     class Program
@@ -42,8 +14,6 @@ namespace HashCodeGoogle
         static int minIngredient;
         static int maxCells;
         private static int[,] array;
-        private static List<Point> possibleShapes;
-        private static List<Tuple<int, int, int, int>> pizzaSlices;
 
         static void Main(string[] args)
         {
@@ -76,33 +46,40 @@ namespace HashCodeGoogle
             // Read data from small.in and initialize Lists
             ReadInputData(reader);
 
-            Console.Clear();
-            // Prints data as matrix
-            //PrintPizza();
+            var possibleShapes = GeneratePossibleShapes();
 
-            // Generates all possible and valid sizes of slices
-            GeneratePossibleShapes();
+            var possibleShapesReverted = possibleShapes.ToList();
+            possibleShapesReverted.Reverse();
 
-            // Show possible shapes and their order
-            //PrintPossibleShapes();
+            
+            var pizzaSlices = new List<Tuple<int, int, int, int>>();
+            var pizzaSlicesReverted = new List<Tuple<int, int, int, int>>();
 
+            var tempArray = new int[rows,columns];
 
+            Array.Copy(array,tempArray,array.Length);
+
+            var result1 = CheckPermutation(possibleShapes, tempArray, pizzaSlices);
+
+            Array.Copy(array, tempArray, array.Length);
+            var result2 = CheckPermutation(possibleShapesReverted, tempArray, pizzaSlicesReverted);
+
+            SaveResults(output, result1 > result2 ? pizzaSlices : pizzaSlicesReverted);
+        }
+
+        private static int CheckPermutation(List<Point> possibleShapes, int[,] tempArray, List<Tuple<int, int, int, int>> pizzaSlices)
+        {
             for (int i = 0; i < rows; i++)
             {
                 for (int j = 0; j < columns; j++)
                 {
                     if (array[i, j] == 0) // If that place was already choped off then move on to the next one
                         continue;
-                    
-                        //Console.Clear();
-                        //PrintCursor(i, j, ConsoleColor.Red);      // Uncoment this shit for some cool debugging stuff
-                        //Console.ReadKey();
-                        
 
                     foreach (var shape in possibleShapes)
                     {
                         // Count sum of slice in current shape if placed in place IxJ
-                        var sumCurrent = SumCurrent(shape, i, j);
+                        var sumCurrent = SumCurrent(shape, i, j, tempArray);
 
                         // Check if sum is correct. More explanations on top. 
                         if (sumCurrent >= minIngredient)
@@ -111,21 +88,29 @@ namespace HashCodeGoogle
                             pizzaSlices.Add(new Tuple<int, int, int, int>(i, j, i + shape.X - 1, j + shape.Y - 1));
 
                             // Erase slice from pizza matrix
-                            CutSliceFromPizza(shape, i, j);
+                            CutSliceFromPizza(shape, i, j, tempArray);
 
                             // Move to next not choped off place
                             break;
                         }
                     }
-                    //PrintCursor(i, j, ConsoleColor.White);
                 }
             }
 
-            // Save results to results.txt in current directory
-            SaveResults(output);
+            int result = 0;
+
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < columns; j++)
+                {
+                    if (tempArray[i, j] == 0)
+                        ++result;
+                }
+            }
+            return result;
         }
 
-        private static void PrintPossibleShapes()
+        private static void PrintPossibleShapes(List<Point> possibleShapes )
         {
             for (int i = 0; i < possibleShapes.Count; i++)
             {
@@ -134,20 +119,18 @@ namespace HashCodeGoogle
             }
         }
 
-        private static void CutSliceFromPizza(Point shape, int i, int j)
+        private static void CutSliceFromPizza(Point shape, int i, int j, int[,] array)
         {
             for (int l = 0; l < shape.X; l++)
             {
                 for (int f = 0; f < shape.Y; f++)
                 {
                     array[i + l, j + f] = 0;
-                    //Console.SetCursorPosition(j+f, i + l);
-                    //Console.Write(0);
                 }
             }
         }
 
-        private static void SaveResults(string output)
+        private static void SaveResults(string output, List<Tuple<int, int, int, int>> pizzaSlices)
         {
             System.IO.StreamWriter file = new System.IO.StreamWriter(output);
             file.WriteLine(pizzaSlices.Count);
@@ -160,7 +143,7 @@ namespace HashCodeGoogle
             file.Close();
         }
 
-        private static int SumCurrent(Point shape, int i, int j)
+        private static int SumCurrent(Point shape, int i, int j, int[,] array)
         {
             int tomatoCounter = 0, mushroomCounter = 0;
             
@@ -209,14 +192,11 @@ namespace HashCodeGoogle
                         array[i, j] = 2;
                 }
             }
-
-            possibleShapes = new List<Point>();
-
-            pizzaSlices = new List<Tuple<int, int, int, int>>();
         }
 
-        private static void GeneratePossibleShapes()
+        private static List<Point> GeneratePossibleShapes()
         {
+            List<Point> possibleShapes = new List<Point>();
             for (int i = 0; i <= maxCells; i++)
             {
                 for (int j = 0; j <= maxCells; j++)
@@ -225,6 +205,8 @@ namespace HashCodeGoogle
                         possibleShapes.Add(new Point(i, j));
                 }
             }
+
+            return possibleShapes;
         }
 
         private static void PrintPizza()
